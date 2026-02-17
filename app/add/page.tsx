@@ -113,7 +113,7 @@ export default function ManualAdd() {
               <div className="animate-in fade-in slide-in-from-top-2">
                 <input
                   type="text"
-                  placeholder="ဘာအတွက်လဲ ရေးပေးပါ (ဥပမာ - ကားခ)"
+                  placeholder="ဘာအတွက်လဲ ရေးပေးပါ (ဥပမာ - ပရိဘောဂ)"
                   value={otherDetail}
                   onChange={(e) => setOtherDetail(e.target.value)}
                   className="w-full p-3 bg-blue-50 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 text-sm italic"
