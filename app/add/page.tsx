@@ -5,9 +5,11 @@ import { supabase } from '@/lib/supabaseClient';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { getDeviceId } from '@/lib/device';
 
 // အမျိုးအစားအသစ်များ
 const CATEGORIES = ['Food & Drink', 'Transport', 'Shopping', 'Clothes', 'Bills', 'Other'];
+
 
 export default function ManualAdd() {
   const router = useRouter();
@@ -18,6 +20,8 @@ export default function ManualAdd() {
     amount: '',
     category: 'Food & Drink'
   });
+  
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,13 +33,15 @@ export default function ManualAdd() {
     const finalCategory = formData.category === 'Other' && otherDetail 
       ? `Other (${otherDetail})` 
       : formData.category;
+      
 
     try {
       const { error } = await supabase.from('expenses').insert([
         {
           item: formData.item,
           amount: Number(formData.amount),
-          category: finalCategory
+          category: finalCategory,
+          user_id: getDeviceId()
         }
       ]);
 
