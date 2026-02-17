@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mic, MicOff, Loader2, Save, LayoutDashboard } from 'lucide-react';
+import { Mic, MicOff, Loader2, Save, LayoutDashboard, Keyboard } from 'lucide-react';
 import { parseExpense, ExpenseInfo } from '@/lib/gemini';
 import { supabase } from '@/lib/supabaseClient';
 import Link from 'next/link';
+
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
@@ -59,11 +60,19 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6">
-      {/* Dashboard Link ခလုတ် */}
-      <div className="absolute top-6 right-6">
+      
+      {/* Top Navigation Bar */}
+      <div className="absolute top-6 w-full max-w-md flex justify-between px-6">
+        {/* လက်ဖြင့်ရိုက်ရန် ခလုတ် (ဘယ်ဘက်) */}
+        <Link href="/add" className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 text-slate-600 font-bold hover:bg-slate-50 transition-all">
+          <Keyboard size={20} />
+          <span className="hidden sm:inline">Manual Add (စာဖြင့်ရိုက်ရန်)</span>
+        </Link>
+
+        {/* Dashboard ခလုတ် (ညာဘက်) */}
         <Link href="/dashboard" className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 text-blue-600 font-bold hover:bg-blue-50 transition-all">
           <LayoutDashboard size={20} />
-          Dashboard
+          <span className="hidden sm:inline">Dashboard (စာရင်းကြည့်ရန်)</span>
         </Link>
       </div>
 
