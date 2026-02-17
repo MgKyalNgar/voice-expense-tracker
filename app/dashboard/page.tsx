@@ -21,6 +21,8 @@ const getCategoryIcon = (category: string) => {
   return '📝'; // Other အတွက်
 };
 
+
+
 export default function Dashboard() {
   const [allExpenses, setAllExpenses] = useState<any[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -93,7 +95,11 @@ export default function Dashboard() {
     }
   };
 
-
+  //ယနေ့အသုံးစရိတ်တွက်ရန်
+  const today = new Date().toISOString().split('T')[0];
+  const todayTotal = allExpenses
+    .filter(item => item.created_at.startsWith(today))
+    .reduce((sum, item) => sum + Number(item.amount), 0);
 
   // Bar Chart (Daily) အတွက် Data ပြင်ဆင်ခြင်း
   const dailyData = useMemo(() => {
@@ -155,7 +161,16 @@ export default function Dashboard() {
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
+        <div className="grid grid-cols-2 gap-4 mb-6">
+          <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-50">
+            <p className="text-[10px] text-slate-400 font-bold uppercase">ယနေ့အသုံးစရိတ်</p>
+            <p className="text-xl font-black text-blue-600">{todayTotal.toLocaleString()} Ks</p>
+          </div>
+          <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-50">
+            <p className="text-[10px] text-slate-400 font-bold uppercase">စုစုပေါင်း</p>
+            <p className="text-xl font-black text-purple-600">{totalAmount.toLocaleString()} Ks</p>
+          </div>
+        </div>
         {/* Daily Trend (Bar Chart) */}
         <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
           <h3 className="font-bold text-slate-800 mb-6">နေ့စဉ် သုံးစွဲမှု (Bar Chart)</h3>
