@@ -5,6 +5,7 @@ import { Mic, MicOff, Loader2, Save, LayoutDashboard, Keyboard } from 'lucide-re
 import { parseExpense, ExpenseInfo } from '@/lib/gemini';
 import { supabase } from '@/lib/supabaseClient';
 import Link from 'next/link';
+import { getDeviceId } from '@/lib/device';
 
 
 export default function Home() {
@@ -48,7 +49,7 @@ export default function Home() {
     if (!result) return;
     try {
       const { error } = await supabase.from('expenses').insert([
-        { item: result.item, amount: result.amount, category: result.category }
+        { item: result.item, amount: result.amount, category: result.category, user_id: getDeviceId() }
       ]);
       if (error) throw error;
       alert("စာရင်းသွင်းပြီးပါပြီ!");

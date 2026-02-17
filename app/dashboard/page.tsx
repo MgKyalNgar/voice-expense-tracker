@@ -8,6 +8,7 @@ import {
 } from 'recharts';
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import Link from 'next/link';
+import { getDeviceId } from '@/lib/device';
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -24,6 +25,7 @@ export default function Dashboard() {
     const { data, error } = await supabase
       .from('expenses')
       .select('*')
+      .eq('user_id', getDeviceId())
       .order('created_at', { ascending: false });
 
     if (data) setAllExpenses(data);
