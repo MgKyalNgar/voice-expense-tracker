@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Mic, MicOff, Loader2, Save } from 'lucide-react';
 import { parseExpense, ExpenseInfo } from '@/lib/gemini';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
@@ -74,36 +75,35 @@ export default function Home() {
             <span className="inline-block bg-blue-200 text-blue-700 text-xs px-2 py-1 rounded-full font-bold">
               # {result.category}
             </span>
-            <button className="w-full mt-4 bg-blue-600 text-white py-2 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors">
+            <button onClick={saveExpense} className="w-full mt-4 bg-blue-600 text-white py-2 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors">
               <Save size={18} /> စာရင်းသွင်းမည်
             </button>
             
           </div>
         )}
         
-
         {error && <p className="mt-4 text-red-500 text-sm">{error}</p>}
       </div>
     </div>
   );
-  const saveExpense = async () => {
-  if (!result) return;
-  
-  const { data, error } = await supabase
-    .from('expenses')
-    .insert([
-      { 
-        item: result.item, 
-        amount: result.amount, 
-        category: result.category 
-      }
-    ]);
+  async function saveExpense() {
+    if (!result) return;
 
-  if (error) {
-    alert("သိမ်းဆည်းရာတွင် အမှားရှိနေပါသည်: " + error.message);
-  } else {
-    alert("စာရင်းသွင်းပြီးပါပြီ!");
-    setResult(null); // သိမ်းပြီးရင် screen ကို ရှင်းထုတ်လိုက်တာပါ
+    const { data, error } = await supabase
+      .from('expenses')
+      .insert([
+        {
+          item: result.item,
+          amount: result.amount,
+          category: result.category
+        }
+      ]);
+
+    if (error) {
+      alert("သိမ်းဆည်းရာတွင် အမှားရှိနေပါသည်: " + error.message);
+    } else {
+      alert("စာရင်းသွင်းပြီးပါပြီ!");
+      setResult(null); // သိမ်းပြီးရင် screen ကို ရှင်းထုတ်လိုက်တာပါ
+    }
   }
-};
 }
