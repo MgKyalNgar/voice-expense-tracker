@@ -17,7 +17,7 @@ export interface ExpenseInfo {
 
 export async function parseExpense(raw: string): Promise<ExpenseInfo> {
   // Flash model က ပိုမြန်ပြီး မြန်မာစာ ပိုကျွမ်းကျင်ပါတယ်
-  const model: GenerativeModel = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  const model: GenerativeModel = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
   
   const prompt = `
     You are a smart expense parser for Myanmar people.
