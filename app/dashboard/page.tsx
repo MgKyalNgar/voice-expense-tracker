@@ -150,14 +150,14 @@ export default function Dashboard() {
         </button>
       </div>
 
-      {/* Total Summary */}
+      {/* Total Summary 
       <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 rounded-3xl shadow-lg shadow-blue-200 mb-8 text-white">
         <p className="text-blue-100 font-medium mb-1">စုစုပေါင်း အသုံးစရိတ်</p>
         <h2 className="text-4xl font-black">{formatCurrency(totalAmount)}</h2>
         <p className="text-xs text-blue-200 mt-2 bg-blue-700/30 inline-block px-2 py-1 rounded-lg">
           {filteredData.length} transactions
         </p>
-      </div>
+      </div>*/}
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
