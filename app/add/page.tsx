@@ -6,37 +6,42 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Save, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
-const CATEGORIES = ['Food', 'Transport', 'Shopping', 'Bills', 'Health', 'Other'];
+// အမျိုးအစားအသစ်များ
+const CATEGORIES = ['Food & Drink', 'Transport', 'Shopping', 'Clothes', 'Bills', 'Other'];
 
 export default function ManualAdd() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [otherDetail, setOtherDetail] = useState(''); // Other အတွက် state
   const [formData, setFormData] = useState({
     item: '',
     amount: '',
-    category: 'Food'
+    category: 'Food & Drink'
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault(); // Page reload မဖြစ်အောင် တားဆီးခြင်း
+    e.preventDefault();
     if (!formData.item || !formData.amount) return alert("အချက်အလက်များ ပြည့်စုံအောင် ဖြည့်ပါ");
 
     setLoading(true);
+    
+    // Other ဖြစ်ရင် category နာမည်ကို format ပြောင်းမယ်
+    const finalCategory = formData.category === 'Other' && otherDetail 
+      ? `Other (${otherDetail})` 
+      : formData.category;
+
     try {
       const { error } = await supabase.from('expenses').insert([
         {
           item: formData.item,
           amount: Number(formData.amount),
-          category: formData.category
+          category: finalCategory
         }
       ]);
 
       if (error) throw error;
-
-      // ပြီးရင် Home ကို ပြန်ပို့မည်
       alert("စာရင်းသွင်းပြီးပါပြီ!");
       router.push('/'); 
-      
     } catch (error: any) {
       alert("Error: " + error.message);
     } finally {
@@ -67,7 +72,7 @@ export default function ManualAdd() {
               placeholder="ဥပမာ - မုန့်ဟင်းခါး"
               value={formData.item}
               onChange={(e) => setFormData({ ...formData, item: e.target.value })}
-              className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 font-medium"
+              className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800"
             />
           </div>
 
@@ -86,7 +91,7 @@ export default function ManualAdd() {
           {/* Category */}
           <div>
             <label className="block text-slate-500 font-bold mb-2 text-sm">အမျိုးအစား</label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 mb-4">
               {CATEGORIES.map((cat) => (
                 <button
                   key={cat}
@@ -102,18 +107,30 @@ export default function ManualAdd() {
                 </button>
               ))}
             </div>
+
+            {/* Other ကိုနှိပ်မှ ပေါ်လာမယ့် Box */}
+            {formData.category === 'Other' && (
+              <div className="animate-in fade-in slide-in-from-top-2">
+                <input
+                  type="text"
+                  placeholder="ဘာအတွက်လဲ ရေးပေးပါ (ဥပမာ - ကားခ)"
+                  value={otherDetail}
+                  onChange={(e) => setOtherDetail(e.target.value)}
+                  className="w-full p-3 bg-blue-50 rounded-xl border border-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 text-sm italic"
+                />
+              </div>
+            )}
           </div>
 
           {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2 mt-4"
+            className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2"
           >
             {loading ? <Loader2 className="animate-spin" /> : <Save size={20} />}
             စာရင်းသိမ်းမည်
           </button>
-
         </form>
       </div>
     </div>

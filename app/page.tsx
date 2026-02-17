@@ -63,16 +63,16 @@ export default function Home() {
       
       {/* Top Navigation Bar */}
       <div className="absolute top-6 w-full max-w-md flex justify-between px-6">
-        {/* လက်ဖြင့်ရိုက်ရန် ခလုတ် (ဘယ်ဘက်) */}
+        {/* လက်ဖြင့်ရိုက်ရန် ခလုတ် (ဘယ်ဘက်) */}(စာဖြင့်ရိုက်ရန်)
         <Link href="/add" className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 text-slate-600 font-bold hover:bg-slate-50 transition-all">
           <Keyboard size={20} />
-          <span className="hidden sm:inline">Manual Add (စာဖြင့်ရိုက်ရန်)</span>
+          <span className="hidden sm:inline">Manual Add</span>
         </Link>
 
-        {/* Dashboard ခလုတ် (ညာဘက်) */}
+        {/* Dashboard ခလုတ် (ညာဘက်) */}(စာရင်းကြည့်ရန်)
         <Link href="/dashboard" className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 text-blue-600 font-bold hover:bg-blue-50 transition-all">
           <LayoutDashboard size={20} />
-          <span className="hidden sm:inline">Dashboard (စာရင်းကြည့်ရန်)</span>
+          <span className="hidden sm:inline">Dashboard</span>
         </Link>
       </div>
 

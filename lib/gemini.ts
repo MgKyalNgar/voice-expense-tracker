@@ -27,7 +27,7 @@ export async function parseExpense(raw: string): Promise<ExpenseInfo> {
     Input: "${raw}"
     
     Return ONLY a valid JSON object with:
-    { "item": "corrected item name in Burmese", "amount": number, "category": "Food|Transport|Bills|Shopping|Other" }
+    { "item": "corrected item name in Burmese", "amount": number, "category": "Food & Drink|Transport|Shopping|Clothes|Bills|Other" }
   `;
 
   const result = await model.generateContent(prompt);
