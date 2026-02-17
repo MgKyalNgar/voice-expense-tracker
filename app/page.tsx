@@ -77,11 +77,33 @@ export default function Home() {
             <button className="w-full mt-4 bg-blue-600 text-white py-2 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors">
               <Save size={18} /> စာရင်းသွင်းမည်
             </button>
+            
           </div>
         )}
+        
 
         {error && <p className="mt-4 text-red-500 text-sm">{error}</p>}
       </div>
     </div>
   );
+  const saveExpense = async () => {
+  if (!result) return;
+  
+  const { data, error } = await supabase
+    .from('expenses')
+    .insert([
+      { 
+        item: result.item, 
+        amount: result.amount, 
+        category: result.category 
+      }
+    ]);
+
+  if (error) {
+    alert("သိမ်းဆည်းရာတွင် အမှားရှိနေပါသည်: " + error.message);
+  } else {
+    alert("စာရင်းသွင်းပြီးပါပြီ!");
+    setResult(null); // သိမ်းပြီးရင် screen ကို ရှင်းထုတ်လိုက်တာပါ
+  }
+};
 }
