@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Mic, MicOff, Loader2, Save } from 'lucide-react';
+import { Mic, MicOff, Loader2, Save, LayoutDashboard } from 'lucide-react';
 import { parseExpense, ExpenseInfo } from '@/lib/gemini';
 import { supabase } from '@/lib/supabaseClient';
+import Link from 'next/link';
 
 export default function Home() {
   const [isListening, setIsListening] = useState(false);
@@ -14,7 +15,7 @@ export default function Home() {
   const startListening = () => {
     setError('');
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SpeechRecognition) return alert("Browser supports မလုပ်ပါ");
+    if (!SpeechRecognition) return alert("သင့် Browser က Voice စနစ်ကို Support မလုပ်ပါ (Chrome သုံးပေးပါ)");
 
     const recognition = new SpeechRecognition();
     recognition.lang = 'my-MM';
@@ -36,18 +37,39 @@ export default function Home() {
       const data = await parseExpense(rawText);
       setResult(data);
     } catch (err: any) {
-      setError("AI အလုပ်လုပ်ရာတွင် အမှားရှိနေသည်: " + err.message);
+      setError("AI အမှားရှိနေသည်: " + err.message);
     } finally {
       setIsParsing(false);
     }
   };
 
+  const saveExpense = async () => {
+    if (!result) return;
+    try {
+      const { error } = await supabase.from('expenses').insert([
+        { item: result.item, amount: result.amount, category: result.category }
+      ]);
+      if (error) throw error;
+      alert("စာရင်းသွင်းပြီးပါပြီ!");
+      setResult(null);
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 p-6">
-      <h1 className="text-3xl font-extrabold mb-8 text-blue-600">Smart Expense AI</h1>
+      {/* Dashboard Link ခလုတ် */}
+      <div className="absolute top-6 right-6">
+        <Link href="/dashboard" className="flex items-center gap-2 bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 text-blue-600 font-bold hover:bg-blue-50 transition-all">
+          <LayoutDashboard size={20} />
+          Dashboard
+        </Link>
+      </div>
 
-      <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-slate-100 text-center">
-        {/* မိုက်ခရိုဖုန်း ခလုတ် */}
+      <h1 className="text-3xl font-extrabold mb-8 text-blue-600 text-center">Smart Expense AI</h1>
+
+      <div className="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md border border-slate-100 text-center relative overflow-hidden">
         <button
           onClick={startListening}
           disabled={isListening || isParsing}
@@ -60,14 +82,13 @@ export default function Home() {
            <Mic className="text-white w-10 h-10" />}
         </button>
 
-        <p className="text-slate-500 font-medium mb-6">
+        <p className="text-slate-500 font-medium mb-6 italic">
           {isParsing ? "AI က စဉ်းစားနေသည်..." : isListening ? "နားထောင်နေသည်..." : "နှိပ်ပြီး အသုံးစရိတ်ပြောပါ"}
         </p>
 
-        {/* AI Result ပြသသည့်နေရာ */}
         {result && (
-          <div className="mt-4 p-4 bg-blue-50 rounded-2xl text-left border border-blue-100 animate-in fade-in slide-in-from-bottom-4">
-            <h2 className="text-sm font-bold text-blue-400 uppercase tracking-wider mb-2">AI ခွဲခြားချက်</h2>
+          <div className="mt-4 p-5 bg-blue-50 rounded-2xl text-left border border-blue-100 animate-in fade-in slide-in-from-bottom-4">
+            <h2 className="text-xs font-bold text-blue-400 uppercase tracking-widest mb-2">AI Result</h2>
             <div className="flex justify-between items-center mb-1">
               <span className="text-slate-700 font-bold text-lg">{result.item}</span>
               <span className="text-blue-600 font-black text-xl">{result.amount.toLocaleString()} Ks</span>
@@ -75,35 +96,19 @@ export default function Home() {
             <span className="inline-block bg-blue-200 text-blue-700 text-xs px-2 py-1 rounded-full font-bold">
               # {result.category}
             </span>
-            <button onClick={saveExpense} className="w-full mt-4 bg-blue-600 text-white py-2 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors">
+            <button 
+              onClick={saveExpense}
+              className="w-full mt-4 bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center gap-2 hover:bg-blue-700 transition-colors font-bold shadow-lg shadow-blue-100"
+            >
               <Save size={18} /> စာရင်းသွင်းမည်
             </button>
-            
           </div>
         )}
-        
-        {error && <p className="mt-4 text-red-500 text-sm">{error}</p>}
+
+        {error && <p className="mt-4 text-red-500 text-sm font-medium bg-red-50 p-3 rounded-xl border border-red-100">{error}</p>}
       </div>
+      
+      <p className="mt-8 text-slate-400 text-sm">Created with AI Collaboration</p>
     </div>
   );
-  async function saveExpense() {
-    if (!result) return;
-
-    const { data, error } = await supabase
-      .from('expenses')
-      .insert([
-        {
-          item: result.item,
-          amount: result.amount,
-          category: result.category
-        }
-      ]);
-
-    if (error) {
-      alert("သိမ်းဆည်းရာတွင် အမှားရှိနေပါသည်: " + error.message);
-    } else {
-      alert("စာရင်းသွင်းပြီးပါပြီ!");
-      setResult(null); // သိမ်းပြီးရင် screen ကို ရှင်းထုတ်လိုက်တာပါ
-    }
-  }
 }
