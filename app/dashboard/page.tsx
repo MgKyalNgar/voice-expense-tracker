@@ -2,15 +2,24 @@
 
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
-import { 
+import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid
 } from 'recharts';
 import { ArrowLeft, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { getDeviceId } from '@/lib/device';
+import { Trash2, Loader2 } from 'lucide-react';
 
 const COLORS = ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+const getCategoryIcon = (category: string) => {
+  if (category.includes('Food')) return '🍽️';
+  if (category.includes('Transport')) return '🚌';
+  if (category.includes('Shopping')) return '🛍️';
+  if (category.includes('Clothes')) return '👕';
+  if (category.includes('Bills')) return '💵';
+  return '📝'; // Other အတွက်
+};
 
 export default function Dashboard() {
   const [allExpenses, setAllExpenses] = useState<any[]>([]);
@@ -67,6 +76,25 @@ export default function Dashboard() {
     return grouped.sort((a, b) => b.value - a.value); // များရာမှ နည်းရာစီသည်
   }, [filteredData]);
 
+  const deleteExpense = async (id: string) => {
+    if (!confirm("ဒီစာရင်းကို ဖျက်မှာ သေချာပါသလား?")) return;
+
+    const { error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', getDeviceId()); // ကိုယ့် ID ဖြစ်မှ ဖျက်လို့ရအောင် ထပ်စစ်သည်
+
+    if (error) {
+      alert("Error: " + error.message);
+    } else {
+      // ဖျက်ပြီးရင် စာရင်းကို ပြန် Update လုပ်သည်
+      fetchExpenses();
+    }
+  };
+
+
+
   // Bar Chart (Daily) အတွက် Data ပြင်ဆင်ခြင်း
   const dailyData = useMemo(() => {
     // လတစ်လရဲ့ ရက်တွေကို 1-30/31 ထိ ဖြန့်ခင်းခြင်း
@@ -115,19 +143,19 @@ export default function Dashboard() {
           <ChevronRight className="text-slate-600" />
         </button>
       </div>
-      
+
       {/* Total Summary */}
       <div className="bg-gradient-to-r from-blue-600 to-blue-500 p-6 rounded-3xl shadow-lg shadow-blue-200 mb-8 text-white">
         <p className="text-blue-100 font-medium mb-1">စုစုပေါင်း အသုံးစရိတ်</p>
         <h2 className="text-4xl font-black">{formatCurrency(totalAmount)}</h2>
         <p className="text-xs text-blue-200 mt-2 bg-blue-700/30 inline-block px-2 py-1 rounded-lg">
-           {filteredData.length} transactions
+          {filteredData.length} transactions
         </p>
       </div>
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* Daily Trend (Bar Chart) */}
         <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
           <h3 className="font-bold text-slate-800 mb-6">နေ့စဉ် သုံးစွဲမှု (Bar Chart)</h3>
@@ -135,10 +163,10 @@ export default function Dashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dailyData}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="day" tick={{fontSize: 10}} interval={2} />
+                <XAxis dataKey="day" tick={{ fontSize: 10 }} interval={2} />
                 <YAxis hide />
-                <Tooltip 
-                  cursor={{fill: '#f1f5f9'}}
+                <Tooltip
+                  cursor={{ fill: '#f1f5f9' }}
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
                 />
                 <Bar dataKey="amount" fill="#3b82f6" radius={[4, 4, 0, 0]} />
@@ -150,17 +178,17 @@ export default function Dashboard() {
         {/* Category Breakdown (Pie Chart + List) */}
         <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200">
           <h3 className="font-bold text-slate-800 mb-4">အမျိုးအစားအလိုက် ခွဲခြားချက်</h3>
-          
+
           <div className="flex flex-col md:flex-row items-center gap-6">
             {/* Chart */}
             <div className="h-[200px] w-[200px] flex-shrink-0">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie 
-                    data={categoryData} 
-                    innerRadius={50} 
-                    outerRadius={80} 
-                    paddingAngle={5} 
+                  <Pie
+                    data={categoryData}
+                    innerRadius={50}
+                    outerRadius={80}
+                    paddingAngle={5}
                     dataKey="value"
                   >
                     {categoryData.map((entry, index) => (
@@ -194,28 +222,49 @@ export default function Dashboard() {
 
         {/* Recent Transactions List */}
         <div className="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 lg:col-span-2">
-           <h3 className="font-bold text-slate-800 mb-4">အသေးစိတ် စာရင်းများ</h3>
-           <div className="space-y-3">
-             {filteredData.map((item) => (
-               <div key={item.id} className="flex justify-between items-center p-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
-                 <div className="flex items-center gap-3">
-                   <div className="bg-blue-100 text-blue-600 w-10 h-10 rounded-full flex items-center justify-center font-bold text-xs">
-                     {new Date(item.created_at).getDate()}
-                   </div>
-                   <div>
-                     <p className="font-bold text-slate-800">{item.item}</p>
-                     <p className="text-xs text-slate-400">{new Date(item.created_at).toLocaleTimeString()}</p>
-                   </div>
-                 </div>
-                 <span className="font-bold text-slate-700">{formatCurrency(item.amount)}</span>
-               </div>
-             ))}
-             {filteredData.length === 0 && (
-                <div className="text-center py-10 text-slate-400">
-                    ဒီလအတွက် စာရင်းမရှိပါ
+          <h3 className="font-bold text-slate-800 mb-4">အသေးစိတ် စာရင်းများ</h3>
+          <div className="space-y-3">
+            {filteredData.map((item) => (
+              <div key={item.id} className="flex justify-between items-center p-3 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
+                <div className="flex items-center gap-3">
+                  <div className="bg-blue-50 w-10 h-10 rounded-xl flex items-center justify-center text-lg">
+                    {getCategoryIcon(item.category)}
+                  </div>
+                  <div>
+                    <p className="font-bold text-slate-800">{item.item}</p>
+                    <p className="text-[10px] text-slate-400">{new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                  </div>
                 </div>
-             )}
-           </div>
+
+                {/* Right Side: Amount & Delete Button */}
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="font-bold text-slate-900 text-sm md:text-base">
+                      {Number(item.amount).toLocaleString()} Ks
+                    </p>
+                    <span className="text-[10px] text-blue-500 font-bold uppercase tracking-wider">
+                      {item.category}
+                    </span>
+                  </div>
+
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => deleteExpense(item.id)}
+                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-xl transition-all"
+                    title="Delete record"
+                  >
+                    <Trash2 size={18} />
+                  </button>
+                </div>
+
+              </div>
+            ))}
+            {filteredData.length === 0 && (
+              <div className="text-center py-10 text-slate-400">
+                ဒီလအတွက် စာရင်းမရှိပါ
+              </div>
+            )}
+          </div>
         </div>
 
       </div>
