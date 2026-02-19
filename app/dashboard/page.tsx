@@ -1,5 +1,7 @@
 'use client';
-
+export const metadata = {
+  title: 'Dashboard | Smart Expense AI',
+};
 import { useEffect, useState, useMemo } from 'react';
 import { supabase } from '@/lib/supabaseClient';
 import {
